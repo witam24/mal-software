@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>網絡安全實驗室｜HKDSE ICT 五類惡意軟件模擬器</title>
+<style>
+:root{--bg:#0b1220;--card:#111c2f;--card2:#16233b;--line:#22314f;--txt:#e6edf7;--dim:#94a7c4;
+--cy:#22d3ee;--gr:#22c55e;--rd:#ef4444;--am:#f59e0b;--pu:#a78bfa;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);
+font-family:"Noto Sans HK","PingFang HK","Microsoft JhengHei",system-ui,sans-serif;line-height:1.65}
+.mono{font-family:ui-monospace,"Cascadia Code",Consolas,monospace}
+a{color:var(--cy)}
+.skip{position:absolute;left:-9999px}.skip:focus{left:8px;top:8px;background:#000;padding:8px;z-index:99}
+header{padding:26px 20px;background:linear-gradient(135deg,#0d1a30,#0b1220 60%);border-bottom:1px solid var(--line)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+h1{margin:0 0 6px;font-size:1.65rem}h1 span{color:var(--cy)}
+.sub{color:var(--dim);margin:0}
+nav{position:sticky;top:0;z-index:20;background:#0b1220f2;border-bottom:1px solid var(--line)}
+nav ul{display:flex;gap:6px;list-style:none;margin:0 auto;padding:8px 16px;max-width:1200px;overflow-x:auto}
+nav a{padding:7px 11px;border-radius:8px;text-decoration:none;color:var(--txt);font-size:.88rem;white-space:nowrap;cursor:pointer}
+nav a:hover,nav a:focus{background:var(--card2);outline:2px solid var(--cy)}
+nav .sep{width:1px;background:var(--line);margin:4px 4px}
+section{padding:32px 0;scroll-margin-top:70px}
+main{padding-bottom:60px}
+h2{font-size:1.32rem;border-left:5px solid var(--cy);padding-left:10px;margin:0 0 4px}
+h2 em{font-style:normal;color:var(--dim);font-size:.8rem;font-weight:400}
+h3{font-size:1.02rem;margin:16px 0 6px;color:var(--cy)}
+.lead{color:var(--dim);margin:0 0 16px;font-size:.92rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:1.05fr 1.35fr 1fr}
+@media(max-width:980px){.g3{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top}
+th{background:var(--card2);color:var(--cy)}
+th small,td small{color:var(--dim);font-size:.78rem;display:block}
+button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);
+background:var(--card2);color:var(--txt);padding:8px 12px}
+button:hover{border-color:var(--cy)}button:disabled{opacity:.4;cursor:not-allowed}
+.btn-p{background:var(--cy);color:#04121b;border-color:var(--cy);font-weight:700}
+.btn-d{background:var(--rd);color:#fff;border-color:var(--rd);font-weight:700}
+.btn-g{background:var(--gr);color:#04200f;border-color:var(--gr);font-weight:700}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button[aria-selected=true]{background:var(--cy);color:#04121b;font-weight:700;border-color:var(--cy)}
+[role=tabpanel][hidden]{display:none}
+label.sw{display:flex;gap:9px;align-items:flex-start;background:var(--card2);padding:9px 11px;
+border-radius:9px;margin-bottom:8px;font-size:.88rem;cursor:pointer}
+label.sw input{margin-top:4px}
+.small{font-size:.82rem;color:var(--dim)}
+.log{background:#060c16;border:1px solid var(--line);border-radius:10px;padding:10px;
+height:220px;overflow:auto;font-size:.81rem}
+.log div{padding:2px 0;border-bottom:1px dashed #17233a}
+.ok{color:var(--gr)}.bad{color:var(--rd)}.warn{color:var(--am)}.info{color:var(--cy)}
+.files{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.file{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:9px 5px;
+text-align:center;font-size:.71rem;cursor:pointer;word-break:break-all;transition:.15s}
+.file:hover{border-color:var(--cy)}
+.file .ico{font-size:1.45rem;display:block}
+.file.inf{border-color:var(--rd);background:#2a0f14;color:#ffb4b4}
+.file.enc{border-color:var(--pu);background:#1d1230;color:#d7c6ff}
+.file.qua{border-color:var(--gr);background:#0f2418;color:#9be7b4}
+.hosts{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+.host{aspect-ratio:1;border-radius:8px;background:var(--card2);border:1px solid var(--line);
+display:grid;place-items:center;font-size:1.1rem}
+.host.pat{border-color:var(--gr)}
+.host.inf{background:#2a0f14;border-color:var(--rd);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{box-shadow:0 0 12px #ef4444aa}}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.73rem;border:1px solid var(--line)}
+.bar{height:14px;background:#060c16;border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gr),var(--am),var(--rd));transition:.4s}
+.note{border-left:4px solid var(--am);background:#241c08;padding:10px 12px;border-radius:8px;font-size:.86rem}
+.learn{border-left:4px solid var(--gr);background:#0e2318;padding:10px 12px;border-radius:8px;font-size:.86rem}
+.exam{border-left:4px solid var(--pu);background:#1a1430;padding:10px 12px;border-radius:8px;font-size:.86rem}
+input[type=text],input[type=password]{width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);
+background:#060c16;color:var(--txt)}
+.screen{background:#060c16;border:1px solid var(--line);border-radius:10px;padding:12px}
+.overlay{position:fixed;inset:0;background:#000000e6;display:grid;place-items:center;z-index:50;padding:16px}
+.ransom{max-width:640px;background:#1b0d12;border:2px solid var(--rd);border-radius:14px;padding:22px}
+.timer{font-size:2rem;color:var(--rd);font-weight:800}
+.q{background:var(--card2);border-radius:10px;padding:12px;margin-bottom:10px}
+.q button{display:block;width:100%;text-align:left;margin:5px 0;font-size:.9rem}
+.en{color:var(--dim);font-size:.8rem}
+footer{border-top:1px solid var(--line);padding:20px 0;color:var(--dim);font-size:.84rem}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳至主要內容 / Skip to content</a>
+
+<header><div class="wrap">
+<h1>網絡安全實驗室 <span>Cyber Security Lab</span></h1>
+<p class="sub">HKDSE ICT｜五類惡意軟件（Malware）互動模擬</p>
+<p class="small">⚠️ 本頁所有「攻擊」皆為瀏覽器內的動畫模擬，<b>不含真實惡意程式碼</b>，不會傳送或儲存任何資料。</p>
+</div></header>
+
+<nav><ul id="navList">
+<li><a data-go="lab" data-tab="p1">🦠 病毒</a></li>
+<li><a data-go="lab" data-tab="p2">🐛 蠕蟲</a></li>
+<li><a data-go="lab" data-tab="p3">🐴 木馬</a></li>
+<li><a data-go="lab" data-tab="p4">👁 間諜軟件</a></li>
+<li><a data-go="lab" data-tab="p5">🔒 勒索軟件</a></li>
+<li class="sep"></li>
+<li><a data-go="compare">📊 五類比較 Comparison</a></li>
+<li><a data-go="quiz">✅ 自我評估 Quiz</a></li>
+</ul></nav>
+
+<main id="main" class="wrap">
+
+<!-- ================= LAB ================= -->
+<section id="lab">
+<h2>實驗室 LAB <em>Malware Simulators</em></h2>
+<p class="lead">每個模擬器分三層閱讀：<b>① 原理</b>（怎樣傳播）→ <b>② 威脅</b>（做了什麼）→ <b>③ 後果</b>（對用戶／機構的影響）。</p>
+
+<div class="tabs" role="tablist" id="tabs">
+  <button role="tab" data-p="p1" aria-selected="true">🦠 病毒 Virus</button>
+  <button role="tab" data-p="p2" aria-selected="false">🐛 蠕蟲 Worm</button>
+  <button role="tab" data-p="p3" aria-selected="false">🐴 木馬 Trojan</button>
+  <button role="tab" data-p="p4" aria-selected="false">👁 間諜軟件 Spyware</button>
+  <button role="tab" data-p="p5" aria-selected="false">🔒 勒索軟件 Ransomware</button>
+</div>
+
+<!-- ---------- 1 VIRUS ---------- -->
+<div id="p1" role="tabpanel">
+<div class="grid g3">
+ <div class="card">
+  <h3>① 原理設定</h3>
+  <p class="small">病毒必須「附著宿主 + 被用戶執行」。試在下方檔案中找出被感染者並執行它。</p>
+  <label class="sw"><input type="checkbox" id="vReveal"><span>顯示病毒位置（示範用）</span></label>
+  <label class="sw"><input type="checkbox" id="vAV"><span>已安裝防毒軟件並<b>更新病毒定義檔</b></span></label>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a"><span>受感染檔案</span><b id="vCount">0 / 12</b></div>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a"><span>CPU 負載</span><b id="vCpu">8%</b></div>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a"><span>破壞常式 payload</span><b id="vPay">未觸發</b></div>
+  <div style="margin-top:10px"><button class="btn-p" id="vReset">重設模擬</button></div>
+ </div>
+ <div class="card">
+  <h3>② 我的電腦（點擊檔案＝執行）</h3>
+  <div class="files" id="vFiles"></div>
+  <p class="small" style="margin-top:8px">🖱 執行受感染檔案 → 病毒駐留記憶體 → 感染其他可執行檔／文件巨集。</p>
+ </div>
+ <div class="card">
+  <h3>③ 系統日誌</h3><div class="log mono" id="vLog"></div>
+  <div class="learn" style="margin-top:10px"><b>學習點</b>：病毒<b>不能自行</b>跨網絡傳播；它靠用戶「雙擊」、共享 USB 或電郵附件搬運。故防禦重點＝<b>用戶行為 + 最新病毒定義檔 + 不執行來源不明的檔案</b>。</div>
+ </div>
+</div></div>
+
+<!-- ---------- 2 WORM ---------- -->
+<div id="p2" role="tabpanel" hidden>
+<div class="grid g3">
+ <div class="card">
+  <h3>① 網絡環境設定</h3>
+  <label class="small">已修補漏洞的主機比例：<b id="wPatL">20</b>%
+   <input type="range" id="wPat" min="0" max="100" value="20" style="width:100%"></label>
+  <label class="small">每台受感染主機每輪掃描次數：<b id="wScanL">2</b>
+   <input type="range" id="wScan" min="1" max="4" value="2" style="width:100%"></label>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+    <button class="btn-d" id="wStart">▶ 釋放蠕蟲</button>
+    <button id="wStop">⏸ 暫停</button>
+    <button class="btn-p" id="wReset">重設</button>
+  </div>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a;margin-top:10px"><span>輪次 tick</span><b id="wTick">0</b></div>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a"><span>受感染主機</span><b id="wInf">1 / 30</b></div>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a"><span>被漏洞修補擋下的攻擊</span><b id="wBlk">0</b></div>
+  <p class="small">頻寬使用率（掃描流量）</p><div class="bar"><i id="wBw"></i></div>
+  <p class="small" id="wSvc">網絡狀態：正常</p>
+ </div>
+ <div class="card">
+  <h3>② 校園網絡（30 台主機）</h3>
+  <div class="hosts" id="wHosts"></div>
+  <p class="small" style="margin-top:8px">🟩 已修補　💻 未修補　🦠 已感染（無需任何用戶動作）</p>
+  <h3>感染曲線</h3>
+  <canvas id="wChart" width="520" height="150" style="width:100%;background:#060c16;border:1px solid var(--line);border-radius:10px"></canvas>
+ </div>
+ <div class="card">
+  <h3>③ 事件日誌</h3><div class="log mono" id="wLog"></div>
+  <div class="learn" style="margin-top:10px"><b>學習點</b>：蠕蟲是<b>指數式</b>擴散。把「已修補比例」由 20% 調到 90% 再試一次，比較兩條曲線 → 這就是<b>修補管理 patch management</b> 的價值。</div>
+ </div>
+</div></div>
+
+<!-- ---------- 3 TROJAN ---------- -->
+<div id="p3" role="tabpanel" hidden>
+<div class="grid g3">
+ <div class="card">
+  <h3>① 情境與良好習慣</h3>
+  <p class="small">你想要一個影片轉換器，搜尋結果出現兩個選擇。</p>
+  <label class="sw"><input type="checkbox" id="tSig"><span>安裝前檢查<b>數位簽章</b>與發行商</span></label>
+  <label class="sw"><input type="checkbox" id="tRt"><span>已開啟防毒軟件<b>實時保護</b></span></label>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+   <button class="btn-g" id="tOfficial">⬇ 從官方網站下載（付費版）</button>
+   <button class="btn-d" id="tForum">⬇ 從不明論壇下載「破解版 + KEY」</button>
+   <button class="btn-p" id="tReset">重設</button>
+  </div>
+  <div class="note" style="margin-top:10px">木馬<b>不會自我複製</b>；它靠<b>偽裝</b>與你的「同意」進入系統 → 社交工程 social engineering。</div>
+ </div>
+ <div class="card">
+  <h3>② 我的畫面</h3>
+  <div class="screen" id="tScreen"><p class="small">（等待你的選擇…）</p></div>
+  <h3 style="margin-top:14px">攻擊者的 C&amp;C 控制台 <span class="badge" id="tConn">未連線</span></h3>
+  <div class="screen">
+   <p class="small">後門一旦開啟，攻擊者可遠端執行以下指令：</p>
+   <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <button class="tAct" data-a="file" disabled>📂 竊取檔案</button>
+    <button class="tAct" data-a="cam" disabled>📷 開啟鏡頭</button>
+    <button class="tAct" data-a="key" disabled>⌨ 記錄按鍵</button>
+    <button class="tAct" data-a="ddos" disabled>🌐 加入殭屍網絡發動 DDoS</button>
+    <button class="tAct" data-a="drop" disabled>💣 投放勒索軟件 dropper</button>
+   </div>
+  </div>
+ </div>
+ <div class="card">
+  <h3>③ 後果日誌</h3><div class="log mono" id="tLog"></div>
+  <div class="learn" style="margin-top:10px"><b>學習點</b>：程式「看似正常運作」正是木馬最危險之處。因果鏈：木馬 → <b>後門 backdoor</b> → 遠端存取 → <b>殭屍網絡 botnet</b> → DDoS／投放勒索軟件。</div>
+ </div>
+</div></div>
+
+<!-- ---------- 4 SPYWARE ---------- -->
+<div id="p4" role="tabpanel" hidden>
+<div class="note" style="margin-bottom:12px">🔐 <b>請只輸入虛構的帳號與密碼</b>（例如 chan / abc12345）。本示範只在你的瀏覽器記憶體內顯示字元，不會傳送或儲存。</div>
+<div class="grid g3">
+ <div class="card">
+  <h3>① 感染途徑與防禦</h3>
+  <button class="btn-d" id="sInstall">⬇ 安裝「免費 PDF 工具」（含捆綁附加程式）</button>
+  <p class="small" style="margin-top:8px">→ Bundling：間諜軟件常隨免費／破解軟件一同安裝，安裝精靈的「推薦選項」已預先勾選。</p>
+  <label class="sw"><input type="checkbox" id="s2fa"><span>學校內聯網已啟用<b>雙重認證 2FA</b></span></label>
+  <button id="sScan">🧹 執行反間諜軟件掃描並移除</button>
+  <button class="btn-p" id="sReset" style="margin-top:6px">重設</button>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a;margin-top:10px"><span>間諜軟件狀態</span><b id="sStat">未安裝</b></div>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a"><span>已擷取的按鍵</span><b id="sKeys">0</b></div>
+ </div>
+ <div class="card">
+  <h3>② 學生的電腦</h3>
+  <div class="screen">
+   <p class="mono small">🔗 https://intranet.school.edu.hk/login</p>
+   <label class="small">學生編號<input type="text" id="sUser" placeholder="虛構帳號 fictitious"></label>
+   <label class="small" style="display:block;margin-top:6px">密碼<input type="password" id="sPass" placeholder="虛構密碼 fictitious"></label>
+   <button class="btn-p" id="sLogin" style="margin-top:8px">登入</button>
+   <p class="small" id="sLoginMsg"></p>
+  </div>
+  <p class="small" style="margin-top:10px">瀏覽其他網站（產生瀏覽紀錄）：</p>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+   <button class="sBrowse" data-u="e-banking.com.hk／轉賬">🏦 網上銀行</button>
+   <button class="sBrowse" data-u="shop.example／結帳（信用卡）">🛒 網購結帳</button>
+   <button class="sBrowse" data-u="mail.school.edu.hk／SBA 檔案">✉ 學校電郵</button>
+  </div>
+ </div>
+ <div class="card">
+  <h3>③ 攻擊者的收集面板</h3>
+  <div class="log mono" id="sLog" style="height:300px"></div>
+  <div class="learn" style="margin-top:10px"><b>學習點</b>：間諜軟件<b>不破壞檔案</b>，所以最難察覺；後果屬<b>私隱與身分</b>層面。它把偷取的資料混入日常上網流量外傳，用戶通常只察覺「電腦變慢、廣告變多」。</div>
+ </div>
+</div></div>
+
+<!-- ---------- 5 RANSOMWARE ---------- -->
+<div id="p5" role="tabpanel" hidden>
+<div class="grid g3">
+ <div class="card">
+  <h3>① 事前準備（決定你的結局）</h3>
+  <p class="small">備份策略：</p>
+  <label class="sw"><input type="radio" name="bk" value="none" checked><span>沒有備份</span></label>
+  <label class="sw"><input type="radio" name="bk" value="nas"><span>備份到<b>長期連線</b>的網絡硬碟 NAS</span></label>
+  <label class="sw"><input type="radio" name="bk" value="321"><span><b>3-2-1 備份</b>：3 份副本、2 種媒體、1 份<b>離線／異地</b></span></label>
+  <label class="sw"><input type="checkbox" id="rPatch"><span>系統與防毒已更新，電郵閘道封鎖 .exe 附件</span></label>
+  <button class="btn-d" id="rOpen" style="margin-top:8px">📧 開啟電郵附件「DSE_成績通知.pdf.exe」</button>
+  <button class="btn-p" id="rReset">重設</button>
+  <div class="note" style="margin-top:10px">留意<b>雙擴充名 .pdf.exe</b>：Windows 預設隱藏擴充名，檔案看似 PDF → 典型社交工程。</div>
+ </div>
+ <div class="card">
+  <h3>② 我的檔案</h3>
+  <div class="files" id="rFiles"></div>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a;margin-top:10px"><span>已加密</span><b id="rCnt">0 / 12</b></div>
+  <div class="kv" style="display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;border-bottom:1px dashed #17233a"><span>備份狀態</span><b id="rBk">—</b></div>
+ </div>
+ <div class="card">
+  <h3>③ 後果與決策日誌</h3><div class="log mono" id="rLog"></div>
+  <div class="exam" style="margin-top:10px"><b>DSE 考點</b>：勒索軟件用<b>非對稱加密</b>，私鑰在攻擊者手上，故「自行破解」不現實 → 唯一可靠復原＝<b>離線備份</b>。答題時亦須寫出<b>非技術後果</b>：營運停頓、聲譽損失、個人資料外洩的通報責任。</div>
+ </div>
+</div></div>
+</section>
+
+<!-- ================= COMPARISON ================= -->
+<section id="compare">
+<h2>五類惡意軟件全景比較 <em>Comparison of Five Types of Malware</em></h2>
+<p class="lead">操作完實驗室後回來核對此表；表格可直接列印成筆記。<span class="en">Complete the simulators first, then verify your findings with this table.</span></p>
+<div class="card" style="overflow:auto">
+<table>
+<tr>
+ <th>特徵<small>Feature</small></th>
+ <th>電腦病毒<small>Computer Virus</small></th>
+ <th>蠕蟲<small>Worm</small></th>
+ <th>木馬程式<small>Trojan Horse</small></th>
+ <th>間諜軟件<small>Spyware</small></th>
+ <th>勒索軟件<small>Ransomware</small></th>
+</tr>
+<tr><th>需要宿主檔案<small>Needs a host file</small></th>
+ <td>✔ 需附著於檔案／巨集／開機磁區<small>Attaches to a file, macro or boot sector</small></td>
+ <td>✘ 獨立程式<small>Standalone program</small></td>
+ <td>✘ 本身就是一個「程式」<small>It is the program itself</small></td>
+ <td>✘ 多捆綁於免費軟件<small>Usually bundled with free software</small></td>
+ <td>✘ 獨立程式<small>Standalone program</small></td></tr>
+<tr><th>自我複製<small>Self-replication</small></th>
+ <td>✔ 在同一機或可攜媒體內<small>Within the same host / removable media</small></td>
+ <td>✔✔ 自動跨網絡<small>Automatically across networks</small></td>
+ <td>✘<small>No</small></td>
+ <td>✘<small>No</small></td>
+ <td>部分變種可橫向擴散<small>Some variants spread laterally</small></td></tr>
+<tr><th>需用戶動作<small>User action required</small></th>
+ <td>✔ 必須執行受感染檔案<small>User must run the infected file</small></td>
+ <td>✘ 零互動，直接利用漏洞<small>No interaction; exploits vulnerabilities</small></td>
+ <td>✔ 用戶自行安裝<small>User installs it voluntarily</small></td>
+ <td>✔ 安裝或點擊<small>Installing or clicking</small></td>
+ <td>✔ 多經釣魚附件<small>Often via phishing attachments</small></td></tr>
+<tr><th>主要目的<small>Main purpose</small></th>
+ <td>破壞、損毀檔案<small>Damage and corrupt files</small></td>
+ <td>快速擴散、耗盡資源<small>Rapid spread, exhaust resources</small></td>
+ <td>開後門、遠端操控<small>Open a backdoor for remote control</small></td>
+ <td>秘密收集資料<small>Secretly collect information</small></td>
+ <td>加密資料索取贖金<small>Encrypt data and demand a ransom</small></td></tr>
+<tr><th>典型後果<small>Typical consequences</small></th>
+ <td>檔案損毀、系統不穩<small>File corruption, unstable system</small></td>
+ <td>頻寬耗盡、網絡與服務中斷<small>Bandwidth exhaustion, network or service outage</small></td>
+ <td>資料被竊、成為殭屍網絡一員、投放其他惡意軟件<small>Data theft, botnet membership, dropping other malware</small></td>
+ <td>密碼與身分被盜、私隱洩露、金錢損失<small>Stolen credentials and identity, privacy breach, financial loss</small></td>
+ <td>資料不能使用、營運停頓、贖金與聲譽損失<small>Data unavailable, operations halted, ransom and reputation loss</small></td></tr>
+<tr><th>察覺難度<small>Difficulty of detection</small></th>
+ <td>中：檔案異常、系統變慢<small>Medium: abnormal files, slow system</small></td>
+ <td>低：網絡明顯擁塞<small>Low: obvious network congestion</small></td>
+ <td>高：程式表面運作正常<small>High: the program appears to work normally</small></td>
+ <td>極高：完全不影響檔案<small>Very high: files are untouched</small></td>
+ <td>低：主動顯示勒索畫面<small>Low: it deliberately shows a ransom note</small></td></tr>
+<tr><th>最關鍵防禦<small>Most critical defence</small></th>
+ <td>更新病毒定義檔＋不執行可疑檔案<small>Update virus definitions; do not run suspicious files</small></td>
+ <td>及時修補漏洞<small>Timely patching of vulnerabilities</small></td>
+ <td>只從官方來源安裝＋檢查數位簽章<small>Install from official sources; check digital signatures</small></td>
+ <td>反間諜掃描＋2FA＋最小權限<small>Anti-spyware scanning, 2FA, least privilege</small></td>
+ <td>離線 3-2-1 備份＋電郵警覺<small>Offline 3-2-1 backup and email vigilance</small></td></tr>
+</table>
+</div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section id="quiz">
+<h2>自我評估 <em>Self-assessment (8 MC questions)</em></h2>
+<p class="lead">選錯會即時顯示解釋。<span class="en">Feedback with explanation appears immediately after each attempt.</span></p>
+<div class="card"><div id="quizBox"></div>
+<p><b>得分 Score：<span id="score">0</span> / 8</b> <button id="qReset">重做 Retry</button></p></div>
+</section>
+</main>
+
+<footer><div class="wrap">
+<p>網絡安全實驗室 · HKDSE ICT 互動教材。本頁不含真實惡意程式碼、不作任何網絡連線、不儲存任何輸入資料。<br>
+🚫 課堂守則：切勿下載真實惡意程式樣本，亦不可在他人裝置或校網上測試攻擊工具。</p>
+</div></footer>
+
+<script>
+/* ============ 通用工具 ============ */
+const $=s=>document.querySelector(s), $$=s=>Array.prototype.slice.call(document.querySelectorAll(s));
+function log(el,msg,cls){if(!el)return;const d=document.createElement('div');d.className=cls||'';
+ d.innerHTML='<span class="small">'+new Date().toLocaleTimeString('en-GB')+'</span> '+msg;el.prepend(d);}
+const rnd=n=>Math.floor(Math.random()*n);
+
+/* ============ 分頁切換 ============ */
+const PANELS=['p1','p2','p3','p4','p5'];
+function activateTab(id){
+ if(PANELS.indexOf(id)<0)return;
+ $$('#tabs button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.p===id?'true':'false');});
+ PANELS.forEach(function(p){const el=document.getElementById(p);if(el)el.hidden=(p!==id);});
+}
+$$('#tabs button').forEach(function(b){b.addEventListener('click',function(){activateTab(b.dataset.p);});});
+
+/* ============ 導航（修正空白畫面）============ */
+function goTo(secId,tabId){
+ if(tabId)activateTab(tabId);
+ const el=document.getElementById(secId);
+ if(!el)return;
+ const nav=document.querySelector('nav');
+ const off=(nav?nav.offsetHeight:0)+12;
+ const y=el.getBoundingClientRect().top+window.pageYOffset-off;
+ const maxY=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
+ window.scrollTo({top:Math.min(Math.max(0,y),maxY),behavior:'smooth'});
+}
+$$('#navList a').forEach(function(a){
+ a.setAttribute('tabindex','0');
+ a.addEventListener('click',function(e){e.preventDefault();goTo(a.dataset.go,a.dataset.tab);});
+ a.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();goTo(a.dataset.go,a.dataset.tab);}});
+});
+
+/* ============ 1. VIRUS ============ */
+const vNames=['ECON_筆記.docx','家庭照片.jpg','SBA_報告.docx','遊戲修改器.exe','時間表.xlsx',
+'中文作文.docx','音樂.mp3','免費字型安裝.exe','班相.png','數學練習.pdf','履歷.docx','螢幕保護.scr'];
+let vF=[];const vLog=$('#vLog');
+function vInit(){
+ vF=vNames.map(function(n){return {n:n,inf:false,qua:false,exe:/\.(exe|scr)$/.test(n)||/\.docx$/.test(n)};});
+ vF[3].inf=true;
+ $('#vPay').textContent='未觸發';$('#vCpu').textContent='8%';vLog.innerHTML='';
+ log(vLog,'系統就緒。病毒已<b>附著</b>於某個宿主檔案，但<b>尚未執行</b>，所以未造成任何影響。','info');
+ vDraw();
+}
+function vDraw(){
+ const box=$('#vFiles');box.innerHTML='';
+ const rev=$('#vReveal').checked;
+ vF.forEach(function(f,i){
+  const d=document.createElement('button');
+  d.className='file'+((f.inf&&rev)?' inf':'')+(f.qua?' qua':'');
+  d.innerHTML='<span class="ico">'+(f.qua?'🛡':f.exe?'⚙':'📄')+'</span>'+f.n+((f.inf&&rev)?'<br>🦠':'');
+  d.addEventListener('click',function(){vRun(i);});box.appendChild(d);
+ });
+ const c=vF.filter(function(f){return f.inf;}).length;
+ $('#vCount').textContent=c+' / 12';
+ $('#vCpu').textContent=Math.min(99,8+c*9)+'%';
+}
+function vRun(i){
+ const f=vF[i];
+ if(f.qua){log(vLog,'該檔案已被隔離，無法執行。','ok');return;}
+ if(!f.inf){log(vLog,'執行「'+f.n+'」→ 正常運作，沒有異常。','ok');return;}
+ if($('#vAV').checked){f.qua=true;f.inf=false;
+  log(vLog,'🛡 防毒軟件以<b>特徵碼比對</b>偵測到「'+f.n+'」內的病毒 → 已<b>隔離 quarantine</b>，感染鏈中斷。','ok');vDraw();return;}
+ log(vLog,'⚠ 用戶<b>雙擊執行</b>「'+f.n+'」→ 病毒碼取得控制權並<b>駐留記憶體</b>。','bad');
+ let t=0;
+ const targets=vF.map(function(x,j){return j;}).filter(function(j){return vF[j].exe&&!vF[j].inf&&!vF[j].qua;});
+ while(t<3&&targets.length){const j=targets.splice(rnd(targets.length),1)[0];vF[j].inf=true;t++;
+  log(vLog,'↳ 病毒把程式碼<b>寫入宿主</b>「'+vF[j].n+'」（感染可執行檔／文件巨集）。','bad');}
+ if(vF.filter(function(x){return x.inf;}).length>=6){
+  $('#vPay').innerHTML='<span class="bad">已觸發</span>';
+  log(vLog,'💥 <b>破壞常式 payload 觸發</b>：刪除文件、覆寫資料、系統不穩 → 後果＝資料損毀、工作損失、須重裝系統。','bad');}
+ $('#vReveal').checked=true;vDraw();
+}
+$('#vReveal').addEventListener('change',vDraw);
+$('#vReset').addEventListener('click',vInit);
+vInit();
+
+/* ============ 2. WORM ============ */
+let wH=[],wT=0,wTimer=null,wBlk=0,wHist=[];const wLog=$('#wLog');
+function wInit(){
+ const pr=+$('#wPat').value/100;
+ wH=Array.from({length:30},function(){return {pat:Math.random()<pr,inf:false};});
+ wH[0].pat=false;wH[0].inf=true;wT=0;wBlk=0;wHist=[1];
+ wLog.innerHTML='';log(wLog,'網絡建立完成。1 台主機已被感染（例如經惡意連結）。','info');wDraw();
+}
+function wDraw(){
+ const box=$('#wHosts');box.innerHTML='';
+ wH.forEach(function(h){const d=document.createElement('div');
+  d.className='host'+(h.inf?' inf':h.pat?' pat':'');
+  d.textContent=h.inf?'🦠':h.pat?'🟩':'💻';
+  d.title=h.inf?'已感染':h.pat?'已修補漏洞':'未修補（有漏洞）';box.appendChild(d);});
+ const inf=wH.filter(function(h){return h.inf;}).length;
+ $('#wInf').textContent=inf+' / 30';$('#wTick').textContent=wT;$('#wBlk').textContent=wBlk;
+ const bw=Math.min(100,inf*(+$('#wScan').value)*4);
+ $('#wBw').style.width=bw+'%';
+ $('#wSvc').innerHTML='網絡狀態：'+(bw>85?'<span class="bad">嚴重擁塞，伺服器無法回應（等同 DoS）</span>':
+   bw>50?'<span class="warn">明顯延遲，檔案伺服器變慢</span>':'<span class="ok">正常</span>');
+ wChart();
+}
+function wChart(){
+ const c=$('#wChart');if(!c||!c.getContext)return;const x=c.getContext('2d');
+ x.clearRect(0,0,c.width,c.height);
+ x.strokeStyle='#22314f';x.lineWidth=1;x.beginPath();
+ x.moveTo(30,130);x.lineTo(510,130);x.moveTo(30,10);x.lineTo(30,130);x.stroke();
+ x.fillStyle='#94a7c4';x.font='11px monospace';x.fillText('30',6,16);x.fillText('0',18,133);x.fillText('tick →',455,145);
+ x.strokeStyle='#ef4444';x.lineWidth=2;x.beginPath();
+ wHist.forEach(function(v,i){const px=30+i*(480/Math.max(12,wHist.length-1)),py=130-(v/30)*115;
+  if(i)x.lineTo(px,py);else x.moveTo(px,py);});x.stroke();
+}
+function wTickFn(){
+ wT++;const sc=+$('#wScan').value;
+ const inf=wH.map(function(h,i){return h.inf?i:-1;}).filter(function(i){return i>=0;});
+ let newly=0;
+ inf.forEach(function(){for(let k=0;k<sc;k++){
+   const j=rnd(30),t=wH[j];if(t.inf)continue;
+   if(t.pat){wBlk++;continue;}
+   t.inf=true;newly++;}});
+ if(newly)log(wLog,'輪次 '+wT+'：蠕蟲<b>自動掃描</b>網絡並利用未修補漏洞，新感染 '+newly+' 台（<b>無需任何用戶動作</b>）。','bad');
+ else log(wLog,'輪次 '+wT+'：所有掃描嘗試都落在<b>已修補</b>的主機上，攻擊失效。','ok');
+ wHist.push(wH.filter(function(h){return h.inf;}).length);wDraw();
+ if(wH.every(function(h){return h.inf;})){clearInterval(wTimer);wTimer=null;
+  log(wLog,'💥 全網感染。後果：頻寬耗盡、內聯網與 eClass 中斷、須逐台清理重裝，停課／停業損失巨大。','bad');}
+}
+$('#wStart').addEventListener('click',function(){if(!wTimer)wTimer=setInterval(wTickFn,800);});
+$('#wStop').addEventListener('click',function(){clearInterval(wTimer);wTimer=null;});
+$('#wReset').addEventListener('click',function(){clearInterval(wTimer);wTimer=null;wInit();});
+$('#wPat').addEventListener('input',function(e){$('#wPatL').textContent=e.target.value;if(!wTimer)wInit();});
+$('#wScan').addEventListener('input',function(e){$('#wScanL').textContent=e.target.value;wDraw();});
+wInit();
+
+/* ============ 3. TROJAN ============ */
+const tLog=$('#tLog');
+function tSet(open){
+ $$('.tAct').forEach(function(b){b.disabled=!open;});
+ $('#tConn').innerHTML=open?'<span class="bad">● 已連線（受害者不知情）</span>':'未連線';
+}
+$('#tOfficial').addEventListener('click',function(){
+ $('#tScreen').innerHTML='<p class="ok">✅ 已從官方網站安裝正式版本，數位簽章有效。</p><p class="small">程式正常運作，沒有額外程序在背景執行。</p>';
+ log(tLog,'選擇官方來源 → 沒有惡意程式。代價：需付費或改用免費開源替代品。','ok');tSet(false);});
+$('#tForum').addEventListener('click',function(){
+ if($('#tSig').checked){$('#tScreen').innerHTML='<p class="ok">🛡 檢查數位簽章：發行商「不明」、簽章無效 → 你取消了安裝。</p>';
+  log(tLog,'檢查數位簽章後取消安裝 → 攻擊失敗。','ok');tSet(false);return;}
+ if($('#tRt').checked){$('#tScreen').innerHTML='<p class="ok">🛡 防毒實時保護：偵測到 Trojan:Win32/Generic，安裝檔已被封鎖。</p>';
+  log(tLog,'實時保護在執行前攔截木馬。','ok');tSet(false);return;}
+ $('#tScreen').innerHTML='<p class="mono small">Installing VideoConverter_CRACK.exe … ▓▓▓▓▓▓▓▓ 100%</p>'+
+  '<p class="ok">🎬 影片轉換器安裝成功，功能<b>完全正常</b>！</p>'+
+  '<p class="small">（畫面上沒有任何異常——這正是木馬的偽裝。）</p>';
+ log(tLog,'⚠ 用戶<b>自願安裝</b>木馬（木馬<b>不自我複製</b>，靠偽裝＋社交工程）。','bad');
+ log(tLog,'↳ 後門 backdoor 已植入並設定開機自動啟動 persistence，成功連上攻擊者的 <b>C&C 伺服器</b>。','bad');
+ tSet(true);});
+$$('.tAct').forEach(function(b){b.addEventListener('click',function(){
+ const m={file:'📂 攻擊者遠端<b>上載你的檔案</b>（SBA、身分證副本、信用卡照片）→ 資料被竊、身分盜用、在暗網出售。',
+ cam:'📷 <b>啟動網絡攝影機與麥克風</b>錄影 → 私隱嚴重侵犯，可被用作性勒索 sextortion。',
+ key:'⌨ 安裝<b>按鍵記錄器</b>取得所有帳密 → 學校帳戶、社交媒體、網上銀行被接管。',
+ ddos:'🌐 你的電腦成為<b>殭屍網絡 botnet</b> 一員，被指令發動 <b>DDoS</b> → IP 被列入黑名單，甚至被誤認為攻擊者而負上法律責任。',
+ drop:'💣 木馬作為 <b>dropper</b> 下載並執行<b>勒索軟件</b> → 檔案全部被加密（見勒索軟件分頁）。'};
+ log(tLog,m[b.dataset.a],'bad');});});
+$('#tReset').addEventListener('click',function(){tLog.innerHTML='';
+ $('#tScreen').innerHTML='<p class="small">（等待你的選擇…）</p>';tSet(false);});
+
+/* ============ 4. SPYWARE ============ */
+const sLog=$('#sLog');let sOn=false,sKeys=0;
+function sStat(){$('#sStat').innerHTML=sOn?'<span class="bad">運行中（隱藏於背景，無圖示）</span>':'未安裝';
+ $('#sKeys').textContent=sKeys;}
+$('#sInstall').addEventListener('click',function(){sOn=true;sStat();
+ log(sLog,'🕵 <b>Spyware 已安裝</b>（隨免費軟件<b>捆綁 bundling</b>，安裝精靈第 3 頁已預先勾選）。它<b>不破壞任何檔案</b>，只默默收集資料。','bad');
+ log(sLog,'↳ 同時安裝廣告模組 adware：首頁被更改、彈出廣告、資源被佔用 → 電腦變慢。','warn');
+ log(sLog,'↳ 收集系統資訊：Windows 11 / 中文(香港) / 學校網絡 IP 段 / 已安裝軟件清單。','bad');});
+$('#sScan').addEventListener('click',function(){
+ if(!sOn){log(sLog,'掃描完成：未發現間諜軟件。','ok');return;}
+ sOn=false;sStat();
+ log(sLog,'🧹 反間諜軟件已移除該程式。<b>但已洩露的密碼必須立即更改</b>——移除軟件不能收回已傳送的資料。','ok');});
+['sUser','sPass'].forEach(function(id){
+ const el=$('#'+id);if(!el)return;
+ el.addEventListener('keydown',function(e){
+  if(!sOn)return;
+  if(e.key.length===1||['Backspace','Enter','Tab'].indexOf(e.key)>=0){
+   sKeys++;sStat();
+   const ch=(e.key.length===1?e.key:'['+e.key+']');
+   const shown=(id==='sPass')?'<span class="bad">'+ch+'</span>':ch;
+   log(sLog,'⌨ keylog ['+(id==='sPass'?'password 欄':'username 欄')+'] 擷取字元：'+shown,'bad');}});});
+$('#sLogin').addEventListener('click',function(){
+ const u=$('#sUser').value||'(空白)';
+ if(sOn){log(sLog,'📤 完整憑證已傳送到攻擊者伺服器（帳號 '+u+' + 密碼），並混入日常上網流量之中，用戶難以察覺。','bad');
+  log(sLog,'📸 同時擷取<b>螢幕截圖</b>：登入畫面與已填表單內容。','bad');}
+ $('#sLoginMsg').innerHTML=$('#s2fa').checked
+  ?'<span class="ok">✅ 系統要求手機一次性驗證碼 2FA。即使密碼洩露，攻擊者仍無法登入——但密碼<b>已外洩</b>，必須立即更改。</span>'
+  :'<span class="bad">⚠ 只憑密碼即可登入。攻擊者稍後可用相同憑證接管帳戶（帳戶接管／身分盜竊）。</span>';
+ if(sOn&&!$('#s2fa').checked)
+  log(sLog,'🔓 攻擊者於 03:14 用你的憑證登入內聯網，下載全班個人資料 → <b>私隱洩露、金錢與聲譽損失</b>。','bad');});
+$$('.sBrowse').forEach(function(b){b.addEventListener('click',function(){
+ if(!sOn){log(sLog,'（未感染）瀏覽 '+b.dataset.u+' — 沒有資料被收集。','ok');return;}
+ log(sLog,'🌐 瀏覽紀錄已上載：'+b.dataset.u+'　↳ 攻擊者由此推斷你的銀行與消費習慣，用作<b>針對性釣魚</b>。','bad');});});
+$('#sReset').addEventListener('click',function(){sOn=false;sKeys=0;sStat();sLog.innerHTML='';
+ $('#sUser').value='';$('#sPass').value='';$('#sLoginMsg').textContent='';});
+sStat();
+
+/* ============ 5. RANSOMWARE ============ */
+const rNames=['SBA_專題報告.docx','中六模擬卷.pdf','畢業照_01.jpg','畢業照_02.jpg','家庭錄影.mp4',
+'班務財政.xlsx','參考書筆記.docx','個人陳述.docx','學生名單.xlsx','程式功課.py','歌唱比賽.mp3','家長通告.pdf'];
+let rF=[],rTimer=null,rCd=null;const rLog=$('#rLog');
+function rInit(){
+ rF=rNames.map(function(n){return {n:n,o:n,enc:false};});
+ $('#rCnt').textContent='0 / 12';rLog.innerHTML='';$('#rBk').textContent='—';
+ const ov=$('.overlay');if(ov)ov.remove();
+ clearInterval(rTimer);clearInterval(rCd);rDraw();
+ log(rLog,'系統就緒。請先選擇備份策略，然後開啟那封「電郵附件」。','info');
+}
+function rDraw(){const b=$('#rFiles');b.innerHTML='';
+ rF.forEach(function(f){const d=document.createElement('div');d.className='file'+(f.enc?' enc':'');
+  d.innerHTML='<span class="ico">'+(f.enc?'🔒':'📄')+'</span>'+f.n;b.appendChild(d);});}
+const hex=n=>Array.from({length:n},function(){return '0123456789abcdef'[rnd(16)];}).join('');
+$('#rOpen').addEventListener('click',function(){
+ if($('#rPatch').checked){
+  log(rLog,'🛡 電郵閘道封鎖 .exe 附件，防毒亦以行為分析攔截 → 攻擊失敗。<b>更新 + 郵件過濾</b>是第一道防線。','ok');return;}
+ log(rLog,'⚠ 用戶被<b>雙擴充名 .pdf.exe</b> 誤導而執行程式（社交工程）。','bad');
+ log(rLog,'↳ 程式產生<b>加密金鑰</b>，以<b>非對稱加密</b>逐一加密文件，並刪除系統還原點與卷影複本。','bad');
+ let i=0;rTimer=setInterval(function(){
+  if(i>=rF.length){clearInterval(rTimer);rDone();return;}
+  rF[i].n=hex(10)+'.locked';rF[i].enc=true;i++;
+  $('#rCnt').textContent=i+' / 12';rDraw();},260);});
+function rDone(){
+ const bk=$('input[name=bk]:checked').value;
+ if(bk==='nas'){$('#rBk').innerHTML='<span class="bad">NAS 備份亦被加密</span>';
+  log(rLog,'💥 NAS 以網絡磁碟長期連線且有寫入權限，<b>備份副本一併被加密</b> → 備份失效。','bad');}
+ else if(bk==='321'){$('#rBk').innerHTML='<span class="ok">離線副本完好</span>';
+  log(rLog,'✅ 3-2-1 備份中的<b>離線／異地副本</b>未連接電腦，未受影響。','ok');}
+ else{$('#rBk').innerHTML='<span class="bad">沒有備份</span>';log(rLog,'❌ 沒有任何備份可用。','bad');}
+ const ov=document.createElement('div');ov.className='overlay';
+ ov.innerHTML='<div class="ransom"><h2 style="border-color:var(--rd)">⚠ 你的檔案已被加密！</h2>'+
+ '<p class="small">所有文件、照片與資料庫已用 RSA-2048 + AES-256 加密，只有我們持有<b>私鑰</b>。</p>'+
+ '<p>贖金：<b>0.05 BTC</b>　剩餘時間：<span class="timer" id="rTm">47:59</span></p>'+
+ '<p class="small">逾時贖金加倍，並會公開你的資料（雙重勒索 double extortion）。</p>'+
+ '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
+ '<button class="btn-d" id="rPay">💰 支付贖金</button>'+
+ '<button class="btn-g" id="rRes">💾 從備份還原</button>'+
+ '<button class="btn-p" id="rRep">🚔 通報並重裝系統</button></div>'+
+ '<p class="small" style="margin-top:10px">（模擬畫面，用於教學討論。）</p></div>';
+ document.body.appendChild(ov);
+ let t=47*60+59;rCd=setInterval(function(){t--;
+  const m=String(Math.floor(t/60)).padStart(2,'0'),s=String(t%60).padStart(2,'0');
+  const e=$('#rTm');if(e)e.textContent=m+':'+s;if(t<=0)clearInterval(rCd);},1000);
+ $('#rPay').addEventListener('click',function(){ov.remove();clearInterval(rCd);
+  const ok=Math.random()<0.5;
+  log(rLog,'💰 支付贖金：'+(ok?'只收到部分金鑰，僅還原約六成檔案。':'<b>攻擊者收款後失聯，沒有提供金鑰。</b>'),'bad');
+  log(rLog,'後果分析：① 金錢損失且<b>沒有保證</b>；② <b>資助犯罪集團</b>並成為「肯付款」的目標而被<b>二次攻擊</b>；③ 可能涉及法律風險；④ 資料仍可能已被外洩。','bad');});
+ $('#rRes').addEventListener('click',function(){ov.remove();clearInterval(rCd);
+  if(bk==='321'){rF.forEach(function(f){f.n=f.o;f.enc=false;});rDraw();$('#rCnt').textContent='0 / 12';
+   log(rLog,'✅ 先清除惡意程式並重裝系統，再由<b>離線副本</b>完整還原，無需付一元。仍須檢視有否資料外洩。','ok');}
+  else log(rLog,'❌ 沒有可用的乾淨備份，還原失敗 → 學期 SBA 檔案永久損失。','bad');});
+ $('#rRep').addEventListener('click',function(){ov.remove();clearInterval(rCd);
+  log(rLog,'🚔 應變流程：<b>隔離受感染裝置（拔網線）→ 保留證據 → 通知 IT／管理層 → 向警方及事故協調中心報告 → 評估資料外洩 → 重裝並修補漏洞 → 檢討備份策略</b>。','ok');});
+}
+$('#rReset').addEventListener('click',rInit);rInit();
+
+/* ============ QUIZ（中英對照，8 題）============ */
+const Q=[
+ {q:'以下哪一項<b>最能</b>區分蠕蟲與電腦病毒？<br><span class="en">Which best distinguishes a worm from a computer virus?</span>',
+  o:['蠕蟲會加密檔案<br><span class="en">A worm encrypts files</span>',
+     '蠕蟲能自我複製並自行透過網絡傳播，無需宿主檔案或用戶執行<br><span class="en">A worm self-replicates and spreads over the network without a host file or user action</span>',
+     '蠕蟲只感染手機<br><span class="en">A worm only infects mobile phones</span>',
+     '蠕蟲一定來自電郵<br><span class="en">A worm always comes from email</span>'],a:1,
+  e:'病毒需附著宿主並由用戶執行；蠕蟲是獨立程式，利用漏洞自動擴散。<br><span class="en">A virus needs a host and user execution; a worm is standalone and exploits vulnerabilities automatically.</span>'},
+ {q:'木馬程式的主要特徵是：<br><span class="en">The main characteristic of a Trojan horse is:</span>',
+  o:['大量自我複製佔用頻寬<br><span class="en">Mass self-replication consuming bandwidth</span>',
+     '偽裝成有用程式，安裝後開設後門供遠端操控，本身不自我複製<br><span class="en">Disguised as useful software, opens a backdoor for remote control, does not self-replicate</span>',
+     '只會顯示廣告<br><span class="en">It only displays advertisements</span>',
+     '必須經 USB 傳播<br><span class="en">It must spread through USB drives</span>'],a:1,
+  e:'木馬＝偽裝 + 後門；擴散靠社交工程而非自我複製。<br><span class="en">Trojan = disguise plus backdoor; it spreads by social engineering, not self-replication.</span>'},
+ {q:'學校伺服器中了勒索軟件，最有效的復原方法是：<br><span class="en">The most effective way to recover from a ransomware attack is:</span>',
+  o:['支付贖金<br><span class="en">Pay the ransom</span>',
+     '用防毒軟件解密<br><span class="en">Decrypt the files with antivirus software</span>',
+     '由未連線的<b>離線備份</b>還原<br><span class="en">Restore from an offline (disconnected) backup</span>',
+     '把 .locked 副檔名改回原本<br><span class="en">Rename the files to remove .locked</span>'],a:2,
+  e:'私鑰在攻擊者手上，改名或防毒都不能解密；離線備份是唯一可靠方案。<br><span class="en">The private key is held by the attacker; renaming or antivirus cannot decrypt. Offline backup is the only reliable option.</span>'},
+ {q:'間諜軟件最典型的後果是：<br><span class="en">The most typical consequence of spyware is:</span>',
+  o:['檔案被刪除<br><span class="en">Files are deleted</span>',
+     '網絡頻寬耗盡<br><span class="en">Network bandwidth is exhausted</span>',
+     '帳號密碼與個人資料被秘密收集，導致身分盜竊與金錢損失<br><span class="en">Credentials and personal data are secretly collected, leading to identity theft and financial loss</span>',
+     '硬碟實體損壞<br><span class="en">Physical damage to the hard disk</span>'],a:2,
+  e:'間諜軟件不破壞資料，威脅在於私隱與憑證外洩，因此更難察覺。<br><span class="en">Spyware does not destroy data; the threat is to privacy and credentials, which makes it harder to notice.</span>'},
+ {q:'檔案名為 <span class="mono">notice.pdf.exe</span>，說明攻擊者使用了：<br><span class="en">A file named notice.pdf.exe shows the attacker used:</span>',
+  o:['加密技術<br><span class="en">Encryption</span>',
+     '雙擴充名以偽裝檔案類型（社交工程）<br><span class="en">A double file extension to disguise the file type (social engineering)</span>',
+     '壓縮技術<br><span class="en">File compression</span>',
+     '數位簽章<br><span class="en">A digital signature</span>'],a:1,
+  e:'系統預設隱藏擴充名，用戶只看到 notice.pdf，實際執行的是 .exe 程式。<br><span class="en">Extensions are hidden by default, so the user sees notice.pdf while an executable actually runs.</span>'},
+ {q:'「及時安裝作業系統更新」主要針對哪一種傳播途徑？<br><span class="en">Installing operating system updates promptly mainly counters which propagation route?</span>',
+  o:['利用軟件<b>漏洞</b>自動入侵（蠕蟲／勒索軟件）<br><span class="en">Automatic intrusion by exploiting software vulnerabilities (worms / ransomware)</span>',
+     '用戶自願安裝破解軟件<br><span class="en">Users voluntarily installing cracked software</span>',
+     '實體偷竊<br><span class="en">Physical theft</span>',
+     '弱密碼<br><span class="en">Weak passwords</span>'],a:0,
+  e:'修補 patch 消除漏洞；用戶行為問題須靠教育與來源管控。<br><span class="en">Patching removes vulnerabilities; behavioural risks need education and source control.</span>'},
+ {q:'電腦被木馬控制後「加入殭屍網絡」，最可能被用來：<br><span class="en">After joining a botnet, an infected computer is most likely used to:</span>',
+  o:['加快自己的電腦<br><span class="en">Speed up the computer</span>',
+     '向其他網站發動 DDoS 攻擊或發送垃圾郵件<br><span class="en">Launch DDoS attacks on other sites or send spam</span>',
+     '自動備份資料<br><span class="en">Back up data automatically</span>',
+     '更新防毒軟件<br><span class="en">Update the antivirus software</span>'],a:1,
+  e:'botnet 由 C&C 統一指揮，受害者可能被誤認為攻擊來源而負上法律責任。<br><span class="en">A botnet is directed by a C&C server; the victim may be mistaken for the attacker and bear legal liability.</span>'},
+ {q:'關於「支付贖金」，以下哪項陳述<b>正確</b>？<br><span class="en">Which statement about paying a ransom is correct?</span>',
+  o:['付款後必定取回所有檔案<br><span class="en">All files are certainly recovered after payment</span>',
+     '付款可證明自己守法<br><span class="en">Paying proves that you are law-abiding</span>',
+     '付款無法保證取回金鑰，且會資助犯罪並增加再被攻擊的風險<br><span class="en">Payment guarantees nothing, funds criminals and increases the risk of being attacked again</span>',
+     '付款是唯一選擇<br><span class="en">Payment is the only option</span>'],a:2,
+  e:'正確做法是隔離受影響裝置、通報、並由乾淨的離線備份還原。<br><span class="en">The correct response is to isolate the device, report the incident and restore from a clean offline backup.</span>'}
+];
+function quiz(){
+ const box=$('#quizBox');box.innerHTML='';let sc=0;$('#score').textContent='0';
+ Q.forEach(function(item,i){
+  const d=document.createElement('div');d.className='q';
+  d.innerHTML='<p><b>'+(i+1)+'.</b> '+item.q+'</p>';
+  item.o.forEach(function(o,j){
+   const b=document.createElement('button');b.innerHTML=String.fromCharCode(65+j)+'. '+o;
+   b.addEventListener('click',function(){
+    if(d.dataset.done)return;d.dataset.done='1';
+    const btns=Array.prototype.slice.call(d.querySelectorAll('button'));
+    if(j===item.a){b.className='btn-g';sc++;$('#score').textContent=String(sc);}
+    else{b.className='btn-d';btns[item.a].className='btn-g';}
+    const ex=document.createElement('div');ex.className='learn';ex.innerHTML='💡 '+item.e;d.appendChild(ex);
+   });
+   d.appendChild(b);});
+  box.appendChild(d);});
+}
+$('#qReset').addEventListener('click',quiz);quiz();
+</script>
+</body>
+</html>
